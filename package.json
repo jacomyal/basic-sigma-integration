@@ -1,0 +1,24 @@
+{
+  "name": "basic-sigma-integration",
+  "version": "0.0.1",
+  "description": "A small integration of sigma.js",
+  "main": "index.js",
+  "author": "OuestWare",
+  "scripts": {
+    "start": "kotatsu serve index.js --index index.html --public data",
+    "clean": "rm -Rf build",
+    "prod": "kotatsu build client index.js --production true",
+    "build": "npm run clean && npm run prod"
+  },
+  "devDependencies": {
+    "kotatsu": "^0.18.0"
+  },
+  "dependencies": {
+    "graphology": "^0.16.0",
+    "graphology-gexf": "^0.5.1",
+    "graphology-graphml": "^0.2.0",
+    "graphology-metrics": "^1.8.0",
+    "graphology-operators": "^1.0.0",
+    "sigma": "^2.0.0-alpha29"
+  }
+}

@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <title>Explorateur de graphes interactifs</title>
+    <meta charset="utf8" />
+    <style>
+      body {
+        background: white;
+        font-family: sans-serif;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      main,
+      #stage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+
+      /* Loader */
+      body.loading main {
+        visibility: hidden;
+      }
+      body.loading::after {
+        content: "Loading";
+        display: block;
+        text-align: center;
+        width: 100%;
+        height: 100%;
+        line-height: 100vh;
+      }
+
+      /* Controls */
+      #controls {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+      }
+      #controls button {
+        display: block;
+        font-size: 23px;
+        color: white;
+        background: black;
+        outline: none;
+        border: 0;
+        padding: 0;
+        margin-bottom: 5px;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        border-radius: 5px;
+      }
+      #controls button:hover {
+        background: grey;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body class="loading">
+    <main>
+      <div id="stage"></div>
+      <div id="controls">
+        <button data-action="zoom" title="Zoomer dans le graphe">+</button>
+        <button data-action="unzoom" title="Dézoomer">-</button>
+        <button data-action="center" title="Recentrer le graphe">⊙</button>
+      </div>
+      <div id="caption">
+        <!-- TODO -->
+      </div>
+    </main>
+    <script type="text/javascript" src="build/bundle.js"></script>
+  </body>
+</html>
