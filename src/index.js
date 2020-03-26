@@ -2,42 +2,37 @@ import Graph from "graphology";
 import gexf from "graphology-gexf/browser";
 
 import initGraphController from "./graphController";
+import defaultConfig from "./defaultConfig";
 
 const STAGE = document.getElementById("stage");
 const CONTROLS = document.getElementById("controls");
+const PARAMS = new URLSearchParams(window.location.search);
 
-// 1. Identify graph path:
-//    The path is read from the "graph" query param in the URL, and fallbacks to
-//    "data/graph.gexf" else.
-//    Don't hesitate to hardcode the path here to prevent users to load the
-//    graph they want.
-const graphPath =
-  new URLSearchParams(window.location.search).get("config") || "les-miserables.gexf";
-
-// 2. Prepare graph:
-function prepareGraph(dataString) {
-  return gexf.parse(Graph, dataString);
+function loadConfig(path) {
+  return path ?
+    fetch(path)
+      .then(response => response.json())
+      .then(data => ({
+        ...defaultConfig,
+        ...data,
+      })) :
+    Promise.resolve(defaultConfig);
 }
 
-// 3. Setup interactions:
+function loadGraph(path) {
+  return fetch(path)
+    .then(response => response.text())
+    .then(data => gexf.parse(Graph, data));
+}
 
-// 4. Ready!
 function finalize() {
   document.body.classList.remove("loading");
 }
 
 // Bootstrap:
-fetch(graphPath)
-  .then(response => {
-    if (response.ok) {
-      return response.text();
-    } else {
-      // TODO:
-      // Deal with bad responses
-    }
-  })
-  .then(data => prepareGraph(data))
-  .then(graph => initGraphController(graph, STAGE, CONTROLS))
+loadConfig(PARAMS.get("config"))
+  .then(config => Promise.all([config, loadGraph(PARAMS.get("graph") || config.graphPath)]))
+  .then(([config, graph]) => initGraphController(config, graph, STAGE, CONTROLS))
   .then(finalize)
   .catch(error => {
     // TODO:

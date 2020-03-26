@@ -3,6 +3,7 @@ import {WebGLRenderer} from "sigma";
 const ZOOM_DURATION = 300;
 
 // Internal state:
+let config = null;
 let graph = null;
 let sigma = null;
 let state = {
@@ -28,9 +29,9 @@ function edgeReducer(edge, data) {
   return {...data, hidden: false};
 }
 
-export default function init(inputGraph, domGraph, domControls) {
+export default function init(inputConfig, inputGraph, domGraph, domControls) {
+  config = inputConfig;
   graph = inputGraph;
-
   sigma = new WebGLRenderer(graph, domGraph, {
     nodeReducer,
     edgeReducer
