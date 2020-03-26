@@ -2,12 +2,12 @@
   "name": "basic-sigma-integration",
   "version": "0.0.1",
   "description": "A small integration of sigma.js",
-  "main": "index.js",
+  "main": "src/index.js",
   "author": "OuestWare",
   "scripts": {
-    "start": "kotatsu serve index.js --index index.html --public data",
+    "start": "kotatsu serve src/index.js --index index.html --public data",
     "clean": "rm -Rf build",
-    "prod": "kotatsu build client index.js --production true",
+    "prod": "kotatsu build client src/index.js --production true",
     "build": "npm run clean && npm run prod"
   },
   "devDependencies": {
