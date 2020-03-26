@@ -9,7 +9,7 @@ export default {
     description: "Graph description"
   },
 
-  // Actionable things from the user
+  // Actionable things from the user:
   actions: {
     toggleEdges: false,
     chooseNodeColor: false,

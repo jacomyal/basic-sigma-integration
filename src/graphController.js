@@ -1,34 +1,97 @@
 import {WebGLRenderer} from "sigma";
 
 const ZOOM_DURATION = 300;
+const GREY = "#ddd";
 
-// Internal state:
 let config = null;
 let graph = null;
 let sigma = null;
 let state = {
-  highlightedNodes: null,
-  highlightedEdges: null,
-};
-
-function refresh() {
-  if (sigma) sigma.refresh();
+  selectedNode: null,
+  hoveredNode: null,
 }
 
-function nodeReducer(node, data) {
-  if (state.highlightedNodes && !state.highlightedNodes[node])
-    return {...data, color: "#ddd", label: ""};
+/**
+ * STATE CONTROLLERS:
+ * ******************
+ */
+function selectNode(node) {
+  if (node === state.selectedNode) return;
 
-  return data;
+  if (state.selectedNode) sigma.unhighlightNode(state.selectedNode);
+  if (node) sigma.highlightNode(node);
+
+  state.selectedNode = node;
+  sigma.refresh();
+}
+
+function hoverNode(node) {
+  if (node === state.hoveredNode) return;
+
+  state.hoveredNode = node;
+  sigma.refresh();
+}
+
+
+/**
+ * RENDERING:
+ * **********
+ */
+function nodeReducer(node, data) {
+  let greyed = false;
+
+  if (state.selectedNode) {
+    if (state.selectedNode !== node && !graph.edge(node, state.selectedNode)) {
+      greyed = true;
+    }
+  }
+
+  if (state.hoveredNode) {
+    if (state.selectedNode && (state.hoveredNode === node || graph.edge(node, state.hoveredNode))) {
+      greyed = false;
+    }
+
+    if (!state.selectedNode && state.hoveredNode !== node && !graph.edge(node, state.hoveredNode)) {
+      greyed = true;
+    }
+  }
+
+  return greyed ? {
+    ...data,
+    label: "",
+    color: GREY,
+  } : data;
 }
 
 function edgeReducer(edge, data) {
-  if (state.highlightedEdges && !state.highlightedEdges[edge])
-    return {...data, hidden: true, label: ""};
+  let greyed = false;
+  let hidden = false;
+  const [source, target] = graph.extremities(edge);
 
-  return {...data, hidden: false};
+  if (state.selectedNode) {
+    if (state.selectedNode !== source && state.selectedNode !== target) {
+      greyed = true;
+    }
+  }
+
+  if (state.hoveredNode) {
+    if (state.selectedNode && (state.hoveredNode === source || state.hoveredNode === target)) {
+      greyed = false;
+    }
+
+    if (!state.selectedNode && (state.hoveredNode !== source && state.hoveredNode !== target)) {
+      greyed = true;
+    }
+  }
+
+  return greyed ? {...data, label: "", color: GREY, hidden} : {...data, hidden};
 }
 
+
+/**
+ * BOOTSTRAP:
+ * **********
+ */
 export default function init(inputConfig, inputGraph, domGraph, domControls) {
   config = inputConfig;
   graph = inputGraph;
@@ -49,22 +112,8 @@ export default function init(inputConfig, inputGraph, domGraph, domControls) {
   });
 
   // Bind sigma events:
-  sigma.on("enterNode", ({node}) => {
-    state.highlightedNodes = sigma.graph
-      .neighbors(node)
-      .reduce((iter, node) => ({...iter, [node]: true}), {});
-    state.highlightedNodes[node] = true;
-
-    state.highlightedEdges = sigma.graph
-      .edges(node)
-      .reduce((iter, edge) => ({...iter, [edge]: true}), {});
-
-    refresh();
-  });
-  sigma.on("leaveNode", () => {
-    state.highlightedNodes = null;
-    state.highlightedEdges = null;
-
-    refresh();
-  });
+  sigma.on("enterNode", ({node}) => hoverNode(node));
+  sigma.on("leaveNode", () => hoverNode());
+  sigma.on("clickNode", ({node}) => selectNode(state.selectedNode === node ? null : node));
+  sigma.on("clickStage", () => selectNode())
 }
