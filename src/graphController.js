@@ -1,4 +1,4 @@
-import {WebGLRenderer} from "sigma";
+import { WebGLRenderer } from "sigma";
 import _ from "lodash";
 
 const ZOOM_DURATION = 300;
@@ -14,7 +14,6 @@ let state = {
   activeSuggestion: null,
   suggestions: null,
 };
-
 
 /**
  * STATE CONTROLLERS:
@@ -50,21 +49,32 @@ function searchNodes(query, datalist) {
 
   const re = new RegExp(query, "i");
   const results = _(graph.nodes())
-    .map(node => ({node, label: graph.getNodeAttribute(node, "label")}))
-    .filter(({label}) => re.test(label))
+    .map((node) => ({ node, label: graph.getNodeAttribute(node, "label") }))
+    .filter(({ label }) => re.test(label))
     .take(STOP_COUNTING_AT + 1)
     .value();
 
   state.suggestions = results.slice(0, MAX_DISPLAYED);
   state.activeSuggestion = null;
 
-  const options = state.suggestions.map(({node, label}) => `<option tabindex="1" data-nodeid="${node}">${label}</option>`);
+  const options = state.suggestions.map(
+    ({ node, label }) =>
+      `<option tabindex="1" data-nodeid="${node}">${label}</option>`
+  );
 
   if (results.length > STOP_COUNTING_AT) {
-    options.push(`<option disabled="true">Plus de ${STOP_COUNTING_AT - MAX_DISPLAYED} autres résultats</option>`)
+    options.push(
+      `<option disabled="true">Plus de ${
+        STOP_COUNTING_AT - MAX_DISPLAYED
+      } autres résultats</option>`
+    );
   } else if (results.length > MAX_DISPLAYED) {
     const remaining = results.length - MAX_DISPLAYED;
-    options.push(`<option disabled="true">${remaining} autre${remaining > 1 ? "s" : ""} résultat${remaining > 1 ? "s" : ""}</option>`);
+    options.push(
+      `<option disabled="true">${remaining} autre${
+        remaining > 1 ? "s" : ""
+      } résultat${remaining > 1 ? "s" : ""}</option>`
+    );
   } else if (!results.length) {
     options.push(`<option disabled="true">Aucun résultat</option>`);
   }
@@ -79,16 +89,17 @@ function highlightSuggestion(index, datalist) {
   if (activeOption) activeOption.classList.remove("active");
 
   if (typeof state.activeSuggestion === "number") {
-    const newActiveOption = datalist.querySelector(`option:nth-child(${state.activeSuggestion + 1})`);
+    const newActiveOption = datalist.querySelector(
+      `option:nth-child(${state.activeSuggestion + 1})`
+    );
     if (newActiveOption) newActiveOption.classList.add("active");
   }
 }
 
 function focusNode(nodeId) {
   selectNode(nodeId);
-  sigma.getCamera().animatedReset({duration: ZOOM_DURATION});
+  sigma.getCamera().animatedReset({ duration: ZOOM_DURATION });
 }
-
 
 /**
  * RENDERING:
@@ -104,20 +115,29 @@ function nodeReducer(node, data) {
   }
 
   if (state.hoveredNode) {
-    if (state.selectedNode && (state.hoveredNode === node || graph.edge(node, state.hoveredNode))) {
+    if (
+      state.selectedNode &&
+      (state.hoveredNode === node || graph.edge(node, state.hoveredNode))
+    ) {
       greyed = false;
     }
 
-    if (!state.selectedNode && state.hoveredNode !== node && !graph.edge(node, state.hoveredNode)) {
+    if (
+      !state.selectedNode &&
+      state.hoveredNode !== node &&
+      !graph.edge(node, state.hoveredNode)
+    ) {
       greyed = true;
     }
   }
 
-  return greyed ? {
-    ...data,
-    label: "",
-    color: GREY,
-  } : data;
+  return greyed
+    ? {
+        ...data,
+        label: "",
+        color: GREY,
+      }
+    : data;
 }
 
 function edgeReducer(edge, data) {
@@ -132,18 +152,26 @@ function edgeReducer(edge, data) {
   }
 
   if (state.hoveredNode) {
-    if (state.selectedNode && (state.hoveredNode === source || state.hoveredNode === target)) {
+    if (
+      state.selectedNode &&
+      (state.hoveredNode === source || state.hoveredNode === target)
+    ) {
       greyed = false;
     }
 
-    if (!state.selectedNode && (state.hoveredNode !== source && state.hoveredNode !== target)) {
+    if (
+      !state.selectedNode &&
+      state.hoveredNode !== source &&
+      state.hoveredNode !== target
+    ) {
       greyed = true;
     }
   }
 
-  return greyed ? {...data, label: "", color: GREY, hidden} : {...data, hidden};
+  return greyed
+    ? { ...data, label: "", color: GREY, hidden }
+    : { ...data, hidden };
 }
-
 
 /**
  * BOOTSTRAP:
@@ -154,14 +182,14 @@ export default function init(inputConfig, inputGraph, domGraph, domControls) {
   graph = inputGraph;
   sigma = new WebGLRenderer(graph, domGraph, {
     nodeReducer,
-    edgeReducer
+    edgeReducer,
   });
 
   // Bind controls:
   [
-    ["zoom", cam => cam.animatedZoom({duration: ZOOM_DURATION})],
-    ["unzoom", cam => cam.animatedUnzoom({duration: ZOOM_DURATION})],
-    ["center", cam => cam.animatedReset({duration: ZOOM_DURATION})]
+    ["zoom", (cam) => cam.animatedZoom({ duration: ZOOM_DURATION })],
+    ["unzoom", (cam) => cam.animatedUnzoom({ duration: ZOOM_DURATION })],
+    ["center", (cam) => cam.animatedReset({ duration: ZOOM_DURATION })],
   ].forEach(([action, handler]) => {
     domControls
       .querySelector(`button[data-action="${action}"]`)
@@ -171,10 +199,10 @@ export default function init(inputConfig, inputGraph, domGraph, domControls) {
   // Bind search:
   const datalist = domControls.querySelector("datalist");
   const searchField = domControls.querySelector("input[type='search']");
-  searchField.addEventListener("input", e =>
+  searchField.addEventListener("input", (e) =>
     searchNodes(e.target.value, datalist)
   );
-  searchField.addEventListener("keydown", e => {
+  searchField.addEventListener("keydown", (e) => {
     switch (e.code) {
       case "ArrowUp":
         if (state.activeSuggestion === 0) {
@@ -206,7 +234,7 @@ export default function init(inputConfig, inputGraph, domGraph, domControls) {
         break;
     }
   });
-  datalist.addEventListener("click", e => {
+  datalist.addEventListener("click", (e) => {
     const nodeId = e.target.getAttribute("data-nodeid");
     if (nodeId) {
       focusNode(nodeId);
@@ -217,8 +245,10 @@ export default function init(inputConfig, inputGraph, domGraph, domControls) {
   });
 
   // Bind sigma events:
-  sigma.on("enterNode", ({node}) => hoverNode(node));
+  sigma.on("enterNode", ({ node }) => hoverNode(node));
   sigma.on("leaveNode", () => hoverNode());
-  sigma.on("clickNode", ({node}) => selectNode(state.selectedNode === node ? null : node));
-  sigma.on("clickStage", () => selectNode())
+  sigma.on("clickNode", ({ node }) =>
+    selectNode(state.selectedNode === node ? null : node)
+  );
+  sigma.on("clickStage", () => selectNode());
 }

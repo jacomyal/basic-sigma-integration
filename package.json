@@ -8,10 +8,12 @@
     "start": "kotatsu serve src/index.js --index index.html --public data",
     "clean": "rm -Rf build",
     "prod": "kotatsu build client src/index.js --production true",
-    "build": "npm run clean && npm run prod"
+    "build": "npm run clean && npm run prod",
+    "prettier": "prettier --write \"**\""
   },
   "devDependencies": {
-    "kotatsu": "^0.18.0"
+    "kotatsu": "^0.18.0",
+    "prettier": "^2.0.2"
   },
   "dependencies": {
     "graphology": "^0.16.0",

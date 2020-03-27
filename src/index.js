@@ -9,20 +9,20 @@ const CONTROLS = document.getElementById("controls");
 const PARAMS = new URLSearchParams(window.location.search);
 
 function loadConfig(path) {
-  return path ?
-    fetch(path)
-      .then(response => response.json())
-      .then(data => ({
-        ...defaultConfig,
-        ...data,
-      })) :
-    Promise.resolve(defaultConfig);
+  return path
+    ? fetch(path)
+        .then((response) => response.json())
+        .then((data) => ({
+          ...defaultConfig,
+          ...data,
+        }))
+    : Promise.resolve(defaultConfig);
 }
 
 function loadGraph(path) {
   return fetch(path)
-    .then(response => response.text())
-    .then(data => gexf.parse(Graph, data));
+    .then((response) => response.text())
+    .then((data) => gexf.parse(Graph, data));
 }
 
 function finalize() {
@@ -31,10 +31,14 @@ function finalize() {
 
 // Bootstrap:
 loadConfig(PARAMS.get("config"))
-  .then(config => Promise.all([config, loadGraph(PARAMS.get("graph") || config.graphPath)]))
-  .then(([config, graph]) => initGraphController(config, graph, STAGE, CONTROLS))
+  .then((config) =>
+    Promise.all([config, loadGraph(PARAMS.get("graph") || config.graphPath)])
+  )
+  .then(([config, graph]) =>
+    initGraphController(config, graph, STAGE, CONTROLS)
+  )
   .then(finalize)
-  .catch(error => {
+  .catch((error) => {
     // TODO:
     // Deal with errors
   });

@@ -6,18 +6,18 @@ export default {
   metadata: {
     title: "Graph title",
     subtitle: "Graph subtitle",
-    description: "Graph description"
+    description: "Graph description",
   },
 
   // Actionable things from the user:
   actions: {
     toggleEdges: false,
     chooseNodeColor: false,
-    chooseNodeSize: false
+    chooseNodeSize: false,
   },
 
   // App initial state:
   initial: {
-    displayEdges: true
-  }
+    displayEdges: true,
+  },
 };
