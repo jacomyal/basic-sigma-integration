@@ -2,18 +2,21 @@ import { WebGLRenderer } from "sigma";
 import _ from "lodash";
 
 const ZOOM_DURATION = 300;
-const GREY = "#ddd";
+const LIGHT_GREY = "#eee";
+const GREY = "#bbb";
 
 let config = null;
 let graph = null;
 let sigma = null;
-let state = {
+
+const state = {
   selectedNode: null,
   hoveredNode: null,
 
   activeSuggestion: null,
   suggestions: null,
 };
+const dom = {};
 
 /**
  * STATE CONTROLLERS:
@@ -36,14 +39,14 @@ function hoverNode(node) {
   sigma.refresh();
 }
 
-function searchNodes(query, datalist) {
+function searchNodes(query) {
   const STOP_COUNTING_AT = 105;
   const MAX_DISPLAYED = 5;
 
   if (!query) {
     state.suggestions = null;
     state.activeSuggestion = null;
-    datalist.innerHTML = "";
+    dom.datalist.innerHTML = "";
     return;
   }
 
@@ -59,7 +62,9 @@ function searchNodes(query, datalist) {
 
   const options = state.suggestions.map(
     ({ node, label }) =>
-      `<option tabindex="1" data-nodeid="${node}">${label}</option>`
+      `<option tabindex="1" data-nodeid="${encodeURIComponent(
+        node
+      )}">${label}</option>`
   );
 
   if (results.length > STOP_COUNTING_AT) {
@@ -79,17 +84,17 @@ function searchNodes(query, datalist) {
     options.push(`<option disabled="true">Aucun résultat</option>`);
   }
 
-  datalist.innerHTML = options.join("");
+  dom.datalist.innerHTML = options.join("");
 }
 
-function highlightSuggestion(index, datalist) {
+function highlightSuggestion(index) {
   state.activeSuggestion = index;
 
-  const activeOption = datalist.querySelector("option.active");
+  const activeOption = dom.datalist.querySelector("option.active");
   if (activeOption) activeOption.classList.remove("active");
 
   if (typeof state.activeSuggestion === "number") {
-    const newActiveOption = datalist.querySelector(
+    const newActiveOption = dom.datalist.querySelector(
       `option:nth-child(${state.activeSuggestion + 1})`
     );
     if (newActiveOption) newActiveOption.classList.add("active");
@@ -135,42 +140,38 @@ function nodeReducer(node, data) {
     ? {
         ...data,
         label: "",
-        color: GREY,
+        color: LIGHT_GREY,
       }
-    : data;
+    : { ...data, zIndex: 1 };
 }
 
 function edgeReducer(edge, data) {
-  let greyed = false;
+  let greyed = true;
   let hidden = false;
   const [source, target] = graph.extremities(edge);
 
   if (state.selectedNode) {
-    if (state.selectedNode !== source && state.selectedNode !== target) {
-      greyed = true;
+    if (state.selectedNode === source || state.selectedNode === target) {
+      greyed = false;
+    } else {
+      hidden = true;
     }
   }
 
-  if (state.hoveredNode) {
-    if (
-      state.selectedNode &&
-      (state.hoveredNode === source || state.hoveredNode === target)
-    ) {
+  if (
+    state.hoveredNode &&
+    (state.hoveredNode === source || state.hoveredNode === target)
+  ) {
+    if (state.selectedNode) {
+      hidden = false;
+    } else {
       greyed = false;
-    }
-
-    if (
-      !state.selectedNode &&
-      state.hoveredNode !== source &&
-      state.hoveredNode !== target
-    ) {
-      greyed = true;
     }
   }
 
   return greyed
-    ? { ...data, label: "", color: GREY, hidden }
-    : { ...data, hidden };
+    ? { ...data, label: "", color: LIGHT_GREY, hidden }
+    : { ...data, zIndex: 1, color: GREY, hidden };
 }
 
 /**
@@ -180,6 +181,82 @@ function edgeReducer(edge, data) {
 export default function init(inputConfig, inputGraph, domGraph, domControls) {
   config = inputConfig;
   graph = inputGraph;
+
+  // Prepare graph:
+  // 1. Interpolate node sizes:
+  if (
+    config.rendering &&
+    typeof config.rendering.minNodeSize === "number" &&
+    typeof config.rendering.maxNodeSize === "number"
+  ) {
+    const { minNodeSize, maxNodeSize } = config.rendering;
+    let minSize = Infinity;
+    let maxSize = -Infinity;
+
+    graph.nodes().forEach((node) => {
+      const size = graph.getNodeAttribute(node, "size") || 0.001;
+      if (typeof size === "number") {
+        minSize = Math.min(minSize, size);
+        maxSize = Math.max(maxSize, size);
+      }
+    });
+
+    if (minSize === Infinity || maxSize === -Infinity) {
+      minSize = maxSize = 1;
+    }
+
+    if (minSize === maxSize) {
+      maxSize++;
+    }
+
+    graph.nodes().forEach((node) => {
+      const size = graph.getNodeAttribute(node, "size") || minSize;
+      graph.setNodeAttribute(
+        node,
+        "size",
+        ((size - minSize) / (maxSize - minSize)) * (maxNodeSize - minNodeSize) +
+          minNodeSize
+      );
+    });
+  }
+
+  // 2. Interpolate edge sizes:
+  if (
+    config.rendering &&
+    typeof config.rendering.minEdgeSize === "number" &&
+    typeof config.rendering.maxEdgeSize === "number"
+  ) {
+    const { minEdgeSize, maxEdgeSize } = config.rendering;
+    let minSize = Infinity;
+    let maxSize = -Infinity;
+
+    graph.edges().forEach((node) => {
+      const size = graph.getEdgeAttribute(node, "size") || 0.001;
+      if (typeof size === "number") {
+        minSize = Math.min(minSize, size);
+        maxSize = Math.max(maxSize, size);
+      }
+    });
+
+    if (minSize === Infinity || maxSize === -Infinity) {
+      minSize = maxSize = 1;
+    }
+
+    if (minSize === maxSize) {
+      maxSize++;
+    }
+
+    graph.edges().forEach((node) => {
+      const size = graph.getEdgeAttribute(node, "size") || minSize;
+      graph.setEdgeAttribute(
+        node,
+        "size",
+        ((size - minSize) / (maxSize - minSize)) * (maxEdgeSize - minEdgeSize) +
+          minEdgeSize
+      );
+    });
+  }
+
   sigma = new WebGLRenderer(graph, domGraph, {
     nodeReducer,
     edgeReducer,
@@ -197,30 +274,28 @@ export default function init(inputConfig, inputGraph, domGraph, domControls) {
   });
 
   // Bind search:
-  const datalist = domControls.querySelector("datalist");
-  const searchField = domControls.querySelector("input[type='search']");
-  searchField.addEventListener("input", (e) =>
-    searchNodes(e.target.value, datalist)
-  );
-  searchField.addEventListener("keydown", (e) => {
+  dom.datalist = domControls.querySelector("datalist");
+  dom.searchField = domControls.querySelector("input[type='search']");
+  dom.searchField.addEventListener("input", (e) => searchNodes(e.target.value));
+  dom.searchField.addEventListener("keydown", (e) => {
     switch (e.code) {
       case "ArrowUp":
         if (state.activeSuggestion === 0) {
-          highlightSuggestion(null, datalist);
+          highlightSuggestion(null);
         } else if (typeof state.activeSuggestion === "number") {
-          highlightSuggestion(state.activeSuggestion - 1, datalist);
+          highlightSuggestion(state.activeSuggestion - 1);
         } else {
-          highlightSuggestion((state.suggestions || []).length - 1, datalist);
+          highlightSuggestion((state.suggestions || []).length - 1);
         }
         e.preventDefault();
         break;
       case "ArrowDown":
         if (state.activeSuggestion === (state.suggestions || []).length - 1) {
-          highlightSuggestion(null, datalist);
+          highlightSuggestion(null);
         } else if (typeof state.activeSuggestion === "number") {
-          highlightSuggestion(state.activeSuggestion + 1, datalist);
+          highlightSuggestion(state.activeSuggestion + 1);
         } else {
-          highlightSuggestion(0, datalist);
+          highlightSuggestion(0);
         }
         e.preventDefault();
         break;
@@ -228,19 +303,19 @@ export default function init(inputConfig, inputGraph, domGraph, domControls) {
         if (typeof state.activeSuggestion === "number") {
           focusNode(state.suggestions[state.activeSuggestion].node);
           e.target.blur();
-          searchField.value = "";
-          searchNodes("", datalist);
+          dom.searchField.value = "";
+          searchNodes("");
         }
         break;
     }
   });
-  datalist.addEventListener("click", (e) => {
+  dom.datalist.addEventListener("click", (e) => {
     const nodeId = e.target.getAttribute("data-nodeid");
     if (nodeId) {
       focusNode(nodeId);
       e.target.blur();
-      searchField.value = "";
-      searchNodes("", datalist);
+      dom.searchField.value = "";
+      searchNodes("");
     }
   });
 

@@ -36,20 +36,23 @@
       #controls {
         position: absolute;
         top: 1em;
-        right: 1em;
+        left: 1em;
         display: flex;
         flex-direction: column;
-        align-items: flex-end;
       }
       #controls fieldset {
         border: 0;
         padding: 0;
-        margin: 0;
         position: relative;
+        margin: 0 0 0.2em;
       }
       #controls input[type="search"] {
         height: 2.8em;
         line-height: 2.8em;
+        outline: none;
+        border: 1px grey solid;
+        border-radius: 4px;
+        padding: 0 1em;
       }
       #controls datalist {
         position: absolute;

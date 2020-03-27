@@ -9,15 +9,11 @@ export default {
     description: "Graph description",
   },
 
-  // Actionable things from the user:
-  actions: {
-    toggleEdges: false,
-    chooseNodeColor: false,
-    chooseNodeSize: false,
-  },
-
-  // App initial state:
-  initial: {
-    displayEdges: true,
+  // Rendering:
+  rendering: {
+    minNodeSize: 3,
+    maxNodeSize: 15,
+    minEdgeSize: 2,
+    maxEdgeSize: 6,
   },
 };
