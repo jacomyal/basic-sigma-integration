@@ -35,22 +35,55 @@
       /* Controls */
       #controls {
         position: absolute;
-        top: 20px;
-        right: 20px;
+        top: 1em;
+        right: 1em;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+      #controls fieldset {
+        border: 0;
+        padding: 0;
+        margin: 0;
+        position: relative;
+      }
+      #controls input[type="search"] {
+        height: 2.8em;
+        line-height: 2.8em;
+      }
+      #controls datalist {
+        position: absolute;
+        display: block;
+        top: 100%;
+        width: 100%;
+        background: white;
+        border: lightgray 1px solid;
+      }
+      #controls:not(:focus-within) datalist,
+      #controls datalist:empty {
+        display: none;
+      }
+      #controls datalist option {
+        padding: 0.1em;
+      }
+      #controls datalist option:hover:not(:disabled),
+      #controls datalist option.active {
+        background: lightblue;
+        cursor: pointer;
       }
       #controls button {
         display: block;
-        font-size: 23px;
+        font-size: 1.5em;
         color: white;
         background: black;
         outline: none;
         border: 0;
         padding: 0;
-        margin-bottom: 5px;
-        width: 30px;
-        height: 30px;
-        line-height: 30px;
-        border-radius: 5px;
+        margin-top: 0.2em;
+        width: 1.5em;
+        height: 1.5em;
+        line-height: 1.5em;
+        border-radius: 4px;
       }
       #controls button:hover {
         background: grey;
@@ -62,6 +95,10 @@
     <main>
       <div id="stage"></div>
       <div id="controls">
+        <fieldset data-action="search">
+          <input type="search" autocomplete="off" placeholder="Chercher un noeud...">
+          <datalist></datalist>
+        </fieldset>
         <button data-action="zoom" title="Zoomer dans le graphe">+</button>
         <button data-action="unzoom" title="Dézoomer">-</button>
         <button data-action="center" title="Recentrer le graphe">⊙</button>

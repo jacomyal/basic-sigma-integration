@@ -19,6 +19,7 @@
     "graphology-graphml": "^0.2.0",
     "graphology-metrics": "^1.8.0",
     "graphology-operators": "^1.0.0",
+    "lodash": "^4.17.15",
     "sigma": "^2.0.0-alpha29"
   }
 }
