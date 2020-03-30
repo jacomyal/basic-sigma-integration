@@ -1,7 +1,58 @@
+/* Common styles */
+.box {
+  position: absolute;
+  background: white;
+  padding: 1em;
+  border: 1px grey solid;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+}
+.box:empty {
+  display: none;
+}
+.box h3 {
+  margin: 0 0 0.2em;
+  padding-right: 1em;
+}
+.box .content {
+  overflow-y: auto;
+}
+.box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.box li {
+  display: flex;
+}
+.box .cross {
+  position: absolute;
+  right: 0.1em;
+  top: 0.1em;
+  font-size: 1.4em;
+  line-height: 1em;
+  cursor: pointer;
+}
+.box .cross:hover {
+  opacity: 0.7;
+}
+.circle {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border-radius: 1em;
+  vertical-align: middle;
+}
+.hidden {
+  display: none !important;
+}
+
 /* Controls */
 #controls {
   position: absolute;
   top: 1em;
+  bottom: 1em;
   left: 1em;
   display: flex;
   flex-direction: column;
@@ -58,31 +109,15 @@
   background: grey;
   cursor: pointer;
 }
+#controls button[data-action="caption"] {
+  margin-top: auto;
+}
 
 /* Node data */
 #node-detail {
-  position: absolute;
   bottom: 1em;
   right: 1em;
-  background: white;
-  padding: 1em;
-  border: 1px grey solid;
-  border-radius: 4px;
-}
-#node-detail:empty {
-  display: none;
-}
-#node-detail h3 {
-  margin: 0 0 0.2em;
-  padding-right: 1em;
-}
-#node-detail ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-#node-detail li {
-  display: flex;
+  max-height: calc(100vh - 4em);
 }
 #node-detail .key {
   flex-grow: 1;
@@ -91,14 +126,23 @@
   color: grey;
   margin-left: 1em;
 }
-#node-detail .cross {
-  position: absolute;
-  right: 0.1em;
-  top: 0.1em;
-  font-size: 1.4em;
-  line-height: 1em;
-  cursor: pointer;
+#node-detail .key,
+#node-detail .value {
+  max-width: 12em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-#node-detail .cross:hover {
-  opacity: 0.7;
+
+/* Captions */
+#caption {
+  bottom: 1em;
+  left: 1em;
+  max-height: 50vh;
+}
+#caption input:not(:checked) + label {
+  color: #bbb;
+}
+#caption input:not(:checked) + label .circle {
+  background: #bbb !important;
 }

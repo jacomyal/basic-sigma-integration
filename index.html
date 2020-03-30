@@ -48,11 +48,16 @@
         <button data-action="zoom" title="Zoomer dans le graphe">+</button>
         <button data-action="unzoom" title="Dézoomer">-</button>
         <button data-action="center" title="Recentrer le graphe">⊙</button>
+        <button
+          data-action="caption"
+          title="Afficher la légende"
+          class="hidden"
+        >
+          👁
+        </button>
       </div>
-      <div id="caption">
-        <!-- TODO -->
-      </div>
-      <div id="node-detail"></div>
+      <div class="box hidden" id="caption"></div>
+      <div class="box" id="node-detail"></div>
     </main>
     <script type="text/javascript" src="build/bundle.js"></script>
   </body>

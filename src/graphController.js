@@ -1,6 +1,8 @@
 import { WebGLRenderer } from "sigma";
+import palette from "iwanthue/precomputed/force-vector-pimp";
 import _ from "lodash";
 
+const MAX_DIFFERENT_COLORS = 15;
 const ZOOM_DURATION = 300;
 const LIGHT_GREY = "#eee";
 const GREY = "#bbb";
@@ -42,7 +44,7 @@ function selectNode(node) {
     } = graph.getNodeAttributes(state.selectedNode);
     dom.nodeDetail.innerHTML = `
       <h3>${label}</h3>
-      <ul>${Object.keys(nodeData)
+      <ul class="content">${Object.keys(nodeData)
         .map(
           (key) =>
             `<li><span class="key">${key}</span><span class="value">${nodeData[key]}</span></li>`
@@ -276,10 +278,71 @@ function prepareGraph() {
       );
     });
   }
+
+  // 3. (if needed) set node colors:
+  if (config.nodeColors && state.captions) {
+    const colorsDict = state.captions.reduce(
+      (iter, { value, color }) => ({ ...iter, [value]: color }),
+      {}
+    );
+    graph
+      .nodes()
+      .forEach((node) =>
+        graph.setNodeAttribute(
+          node,
+          "color",
+          colorsDict[graph.getNodeAttribute(node, config.nodeColors)] || GREY
+        )
+      );
+  }
+}
+
+function prepareCaption() {
+  const values = {};
+
+  // Determine colors:
+  graph.nodes().forEach((node) => {
+    const value = graph.getNodeAttribute(node, config.nodeColors);
+    values[value] = (values[value] || 0) + 1;
+  });
+
+  const colors =
+    palette[Math.min(MAX_DIFFERENT_COLORS, Object.keys(values).length)];
+
+  state.captions = _.sortBy(Object.keys(values), (value) => -values[value]).map(
+    (value, i) => ({
+      value,
+      count: values[value],
+      color: colors[i],
+    })
+  );
+
+  // Display caption:
+  dom.caption.innerHTML = `
+    <h3>Légende</h3>
+    <ul class="content">${state.captions
+      .map(
+        ({ value, color, count }, i) => `
+        <li>
+          <input type="checkbox" data-value="${value}" id="caption-${i}" checked>
+          <label title="Noeuds avec la valeur ${value} pour l'attribut ${
+          config.nodeColors
+        } : ${count}" for="caption-${i}">
+              <span class="circle" style="background: ${
+                color || GREY
+              }"></span> ${value}
+          </label>
+        </li>`
+      )
+      .join("")}</ul>
+    <div class="cross" tabindex="1">×</div>
+  `;
 }
 
 export default function init(inputConfig, inputGraph, domRoot) {
+  // Identify relevant DOM containers:
   dom.stage = domRoot.querySelector("#stage");
+  dom.caption = domRoot.querySelector("#caption");
   dom.controls = domRoot.querySelector("#controls");
   dom.nodeDetail = domRoot.querySelector("#node-detail");
   dom.datalist = dom.controls.querySelector("datalist");
@@ -293,6 +356,14 @@ export default function init(inputConfig, inputGraph, domRoot) {
     edgeReducer,
   });
 
+  if (config.nodeColors) {
+    prepareCaption();
+    dom.caption.classList.remove("hidden");
+    dom.controls
+      .querySelector('button[data-action="caption"]')
+      .classList.remove("hidden");
+  }
+
   prepareGraph();
 
   // Bind controls:
@@ -300,6 +371,7 @@ export default function init(inputConfig, inputGraph, domRoot) {
     ["zoom", (cam) => cam.animatedZoom({ duration: ZOOM_DURATION })],
     ["unzoom", (cam) => cam.animatedUnzoom({ duration: ZOOM_DURATION })],
     ["center", (cam) => cam.animatedReset({ duration: ZOOM_DURATION })],
+    ["caption", () => dom.caption.classList.remove("hidden")],
   ].forEach(([action, handler]) => {
     dom.controls
       .querySelector(`button[data-action="${action}"]`)
@@ -309,6 +381,11 @@ export default function init(inputConfig, inputGraph, domRoot) {
   dom.nodeDetail.addEventListener("click", (e) => {
     if (e.target.classList.contains("cross")) {
       selectNode();
+    }
+  });
+  dom.caption.addEventListener("click", (e) => {
+    if (e.target.classList.contains("cross")) {
+      dom.caption.classList.add("hidden");
     }
   });
 

@@ -9,6 +9,9 @@ export default {
     description: "Graph description",
   },
 
+  // Caption:
+  nodeColors: null, // Set to a field name, to map colors
+
   // Rendering:
   rendering: {
     minNodeSize: 3,

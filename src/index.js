@@ -39,4 +39,5 @@ loadConfig(PARAMS.get("config"))
   .catch((error) => {
     // TODO:
     // Deal with errors
+    console.log("Something went wrong:", error);
   });
