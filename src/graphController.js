@@ -29,6 +29,30 @@ function selectNode(node) {
   if (node) sigma.highlightNode(node);
 
   state.selectedNode = node;
+
+  if (state.selectedNode) {
+    const {
+      x,
+      y,
+      z,
+      size,
+      color,
+      label,
+      ...nodeData
+    } = graph.getNodeAttributes(state.selectedNode);
+    dom.nodeDetail.innerHTML = `
+      <h3>${label}</h3>
+      <ul>${Object.keys(nodeData)
+        .map(
+          (key) =>
+            `<li><span class="key">${key}</span><span class="value">${nodeData[key]}</span></li>`
+        )
+        .join("")}</ul>
+      <div class="cross" tabindex="1">×</div>`;
+  } else {
+    dom.nodeDetail.innerHTML = "";
+  }
+
   sigma.refresh();
 }
 
@@ -178,11 +202,7 @@ function edgeReducer(edge, data) {
  * BOOTSTRAP:
  * **********
  */
-export default function init(inputConfig, inputGraph, domGraph, domControls) {
-  config = inputConfig;
-  graph = inputGraph;
-
-  // Prepare graph:
+function prepareGraph() {
   // 1. Interpolate node sizes:
   if (
     config.rendering &&
@@ -256,11 +276,24 @@ export default function init(inputConfig, inputGraph, domGraph, domControls) {
       );
     });
   }
+}
 
-  sigma = new WebGLRenderer(graph, domGraph, {
+export default function init(inputConfig, inputGraph, domRoot) {
+  dom.stage = domRoot.querySelector("#stage");
+  dom.controls = domRoot.querySelector("#controls");
+  dom.nodeDetail = domRoot.querySelector("#node-detail");
+  dom.datalist = dom.controls.querySelector("datalist");
+  dom.searchField = dom.controls.querySelector("input[type='search']");
+
+  config = inputConfig;
+  graph = inputGraph;
+  sigma = new WebGLRenderer(graph, dom.stage, {
+    ...((config.rendering || {}).sigmaSettings || {}),
     nodeReducer,
     edgeReducer,
   });
+
+  prepareGraph();
 
   // Bind controls:
   [
@@ -268,14 +301,18 @@ export default function init(inputConfig, inputGraph, domGraph, domControls) {
     ["unzoom", (cam) => cam.animatedUnzoom({ duration: ZOOM_DURATION })],
     ["center", (cam) => cam.animatedReset({ duration: ZOOM_DURATION })],
   ].forEach(([action, handler]) => {
-    domControls
+    dom.controls
       .querySelector(`button[data-action="${action}"]`)
       .addEventListener("click", () => handler(sigma.getCamera()));
   });
 
+  dom.nodeDetail.addEventListener("click", (e) => {
+    if (e.target.classList.contains("cross")) {
+      selectNode();
+    }
+  });
+
   // Bind search:
-  dom.datalist = domControls.querySelector("datalist");
-  dom.searchField = domControls.querySelector("input[type='search']");
   dom.searchField.addEventListener("input", (e) => searchNodes(e.target.value));
   dom.searchField.addEventListener("keydown", (e) => {
     switch (e.code) {

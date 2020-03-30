@@ -4,11 +4,9 @@ import gexf from "graphology-gexf/browser";
 import initGraphController from "./graphController";
 import defaultConfig from "./defaultConfig";
 
-const STAGE = document.getElementById("stage");
-const CONTROLS = document.getElementById("controls");
-const PARAMS = new URLSearchParams(window.location.search);
-
 import "../styles.css";
+
+const PARAMS = new URLSearchParams(window.location.search);
 
 function loadConfig(path) {
   return path
@@ -36,9 +34,7 @@ loadConfig(PARAMS.get("config"))
   .then((config) =>
     Promise.all([config, loadGraph(PARAMS.get("graph") || config.graphPath)])
   )
-  .then(([config, graph]) =>
-    initGraphController(config, graph, STAGE, CONTROLS)
-  )
+  .then(([config, graph]) => initGraphController(config, graph, document.body))
   .then(finalize)
   .catch((error) => {
     // TODO:

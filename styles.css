@@ -60,3 +60,45 @@
 }
 
 /* Node data */
+#node-detail {
+  position: absolute;
+  bottom: 1em;
+  right: 1em;
+  background: white;
+  padding: 1em;
+  border: 1px grey solid;
+  border-radius: 4px;
+}
+#node-detail:empty {
+  display: none;
+}
+#node-detail h3 {
+  margin: 0 0 0.2em;
+  padding-right: 1em;
+}
+#node-detail ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+#node-detail li {
+  display: flex;
+}
+#node-detail .key {
+  flex-grow: 1;
+}
+#node-detail .value {
+  color: grey;
+  margin-left: 1em;
+}
+#node-detail .cross {
+  position: absolute;
+  right: 0.1em;
+  top: 0.1em;
+  font-size: 1.4em;
+  line-height: 1em;
+  cursor: pointer;
+}
+#node-detail .cross:hover {
+  opacity: 0.7;
+}
