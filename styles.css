@@ -1,0 +1,62 @@
+/* Controls */
+#controls {
+  position: absolute;
+  top: 1em;
+  left: 1em;
+  display: flex;
+  flex-direction: column;
+}
+#controls fieldset {
+  border: 0;
+  padding: 0;
+  position: relative;
+  margin: 0 0 0.2em;
+}
+#controls input[type="search"] {
+  height: 2.8em;
+  line-height: 2.8em;
+  outline: none;
+  border: 1px grey solid;
+  border-radius: 4px;
+  padding: 0 1em;
+}
+#controls datalist {
+  position: absolute;
+  display: block;
+  top: 100%;
+  width: 100%;
+  background: white;
+  border: lightgray 1px solid;
+}
+#controls:not(:focus-within) datalist,
+#controls datalist:empty {
+  display: none;
+}
+#controls datalist option {
+  padding: 0.1em;
+}
+#controls datalist option:hover:not(:disabled),
+#controls datalist option.active {
+  background: lightblue;
+  cursor: pointer;
+}
+#controls button {
+  display: block;
+  font-size: 1.5em;
+  color: white;
+  background: black;
+  outline: none;
+  border: 0;
+  padding: 0;
+  margin-top: 0.2em;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+  border-radius: 4px;
+}
+#controls button:hover {
+  background: grey;
+  cursor: pointer;
+}
+
+/* Node data */

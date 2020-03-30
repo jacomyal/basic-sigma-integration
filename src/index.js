@@ -8,6 +8,8 @@ const STAGE = document.getElementById("stage");
 const CONTROLS = document.getElementById("controls");
 const PARAMS = new URLSearchParams(window.location.search);
 
+import "../styles.css";
+
 function loadConfig(path) {
   return path
     ? fetch(path)
