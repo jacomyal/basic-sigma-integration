@@ -17,6 +17,9 @@ const state = {
 
   activeSuggestion: null,
   suggestions: null,
+
+  captions: null,
+  captionsDict: null,
 };
 const dom = {};
 
@@ -132,12 +135,33 @@ function focusNode(nodeId) {
   sigma.getCamera().animatedReset({ duration: ZOOM_DURATION });
 }
 
+function setCaptionValueVisible(value, checked) {
+  state.captionsDict[value].visible = checked;
+  sigma.refresh();
+}
+
+function focusCaptionValue(value) {
+  // Detect if the value is already focused:
+  const checkAll =
+    state.captions.filter(({ visible }) => visible).length === 1 &&
+    state.captionsDict[value].visible;
+
+  [...dom.caption.querySelectorAll("input[type=checkbox")].forEach((input) => {
+    input.checked = checkAll || input.getAttribute("data-value") === value;
+  });
+  state.captions.forEach((caption) => {
+    caption.visible = checkAll || caption.value === value;
+  });
+  sigma.refresh();
+}
+
 /**
  * RENDERING:
  * **********
  */
 function nodeReducer(node, data) {
   let greyed = false;
+  let hideLabel = false;
 
   if (state.selectedNode) {
     if (state.selectedNode !== node && !graph.edge(node, state.selectedNode)) {
@@ -162,13 +186,28 @@ function nodeReducer(node, data) {
     }
   }
 
-  return greyed
-    ? {
-        ...data,
-        label: "",
-        color: LIGHT_GREY,
-      }
-    : { ...data, zIndex: 1 };
+  hideLabel = greyed;
+
+  if (
+    config.nodeColors &&
+    state.captions &&
+    state.captions.some(({ visible }) => !visible)
+  ) {
+    greyed = !state.captionsDict[
+      graph.getNodeAttribute(node, config.nodeColors)
+    ].visible;
+
+    if (!state.selectedNode && !state.hoveredNode) {
+      hideLabel = greyed;
+    }
+  }
+
+  return {
+    ...data,
+    label: hideLabel ? "" : data.label,
+    color: greyed ? LIGHT_GREY : data.color,
+    zIndex: greyed ? 0 : 1,
+  };
 }
 
 function edgeReducer(edge, data) {
@@ -314,8 +353,10 @@ function prepareCaption() {
       value,
       count: values[value],
       color: colors[i],
+      visible: true,
     })
   );
+  state.captionsDict = _.keyBy(state.captions, "value");
 
   // Display caption:
   dom.caption.innerHTML = `
@@ -331,6 +372,7 @@ function prepareCaption() {
               <span class="circle" style="background: ${
                 color || GREY
               }"></span> ${value}
+              <a class="eye" tabindex="1" href="#" data-value="${value}">👁</a>
           </label>
         </li>`
       )
@@ -386,6 +428,19 @@ export default function init(inputConfig, inputGraph, domRoot) {
   dom.caption.addEventListener("click", (e) => {
     if (e.target.classList.contains("cross")) {
       dom.caption.classList.add("hidden");
+    }
+
+    if (e.target.classList.contains("eye")) {
+      focusCaptionValue(e.target.getAttribute("data-value"));
+      e.preventDefault();
+    }
+  });
+  dom.caption.addEventListener("change", (e) => {
+    const target = e.target;
+    const value = target.getAttribute("data-value");
+
+    if (value && typeof target.checked === "boolean") {
+      setCaptionValueVisible(value, target.checked);
     }
   });
 

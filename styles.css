@@ -146,3 +146,11 @@
 #caption input:not(:checked) + label .circle {
   background: #bbb !important;
 }
+#caption .eye {
+  visibility: hidden;
+  color: grey;
+}
+#caption li:hover .eye,
+#caption li:focus-within .eye {
+  visibility: visible;
+}
