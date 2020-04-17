@@ -133,6 +133,14 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+#node-detail a {
+  color: DarkSlateGray;
+}
+#node-detail a:focus,
+#node-detail a:active,
+#node-detail a:hover {
+  color: SlateGray;
+}
 
 /* Captions */
 #caption {

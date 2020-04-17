@@ -11,6 +11,7 @@ export default {
 
   // Caption:
   nodeColors: null, // Set to a field name, to map colors
+  nodePanel: {},
 
   // Rendering:
   rendering: {

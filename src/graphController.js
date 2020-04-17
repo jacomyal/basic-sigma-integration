@@ -45,8 +45,21 @@ function selectNode(node) {
       label,
       ...nodeData
     } = graph.getNodeAttributes(state.selectedNode);
+
+    const customLabel = config?.nodePanel.customLabel
+      ? config?.nodePanel.customLabel.replace(/NODE_LABEL/g, label)
+      : null;
+    const customLink = config?.nodePanel.customURL
+      ? `<a href="${config?.nodePanel.customURL.replace(
+          /NODE_ID/g,
+          encodeURIComponent(node)
+        )}" target="_blank" rel="noopener">${customLabel || label}</a>`
+      : null;
+
     dom.nodeDetail.innerHTML = `
-      <h3>${label}</h3>
+      <h3>${customLink && !customLabel ? customLink : label}</h3>
+      ${customLabel && !customLink ? customLabel : ""}
+      ${customLabel && customLink ? customLink : ""}
       <ul class="content">${Object.keys(nodeData)
         .map(
           (key) =>
