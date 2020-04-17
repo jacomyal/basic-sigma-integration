@@ -372,7 +372,7 @@ function prepareCaption() {
               <span class="circle" style="background: ${
                 color || GREY
               }"></span> ${value}
-              <a class="eye" tabindex="1" href="#" data-value="${value}">👁</a>
+              <a class="focus" title="Focus sur cette valeur" tabindex="1" href="#" data-value="${value}">🔍</a>
           </label>
         </li>`
       )
@@ -430,7 +430,7 @@ export default function init(inputConfig, inputGraph, domRoot) {
       dom.caption.classList.add("hidden");
     }
 
-    if (e.target.classList.contains("eye")) {
+    if (e.target.classList.contains("focus")) {
       focusCaptionValue(e.target.getAttribute("data-value"));
       e.preventDefault();
     }
