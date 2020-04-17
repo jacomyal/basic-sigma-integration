@@ -1,6 +1,6 @@
 {
   "name": "basic-sigma-integration",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A small integration of sigma.js",
   "main": "src/index.js",
   "author": "OuestWare",
