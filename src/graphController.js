@@ -161,7 +161,7 @@ function focusCaptionValue(value) {
  */
 function nodeReducer(node, data) {
   let greyed = false;
-  let hideLabel = false;
+  let hideLabel;
 
   if (state.selectedNode) {
     if (state.selectedNode !== node && !graph.edge(node, state.selectedNode)) {
@@ -182,11 +182,13 @@ function nodeReducer(node, data) {
       state.hoveredNode !== node &&
       !graph.edge(node, state.hoveredNode)
     ) {
-      greyed = true;
+      hideLabel = true;
     }
   }
 
-  hideLabel = greyed;
+  if (greyed) {
+    hideLabel = greyed;
+  }
 
   if (
     config.nodeColors &&
@@ -211,32 +213,36 @@ function nodeReducer(node, data) {
 }
 
 function edgeReducer(edge, data) {
-  let greyed = true;
   let hidden = false;
   const [source, target] = graph.extremities(edge);
 
   if (state.selectedNode) {
-    if (state.selectedNode === source || state.selectedNode === target) {
-      greyed = false;
-    } else {
+    if (state.selectedNode !== source && state.selectedNode !== target) {
       hidden = true;
     }
   }
 
-  if (
-    state.hoveredNode &&
-    (state.hoveredNode === source || state.hoveredNode === target)
-  ) {
-    if (state.selectedNode) {
+  if (state.hoveredNode) {
+    if (
+      state.selectedNode &&
+      (state.hoveredNode === source || state.hoveredNode === target)
+    ) {
       hidden = false;
-    } else {
-      greyed = false;
+    } else if (
+      !state.selectedNode &&
+      !(state.hoveredNode === source || state.hoveredNode === target)
+    ) {
+      hidden = true;
     }
   }
 
-  return greyed
-    ? { ...data, label: "", color: LIGHT_GREY, hidden }
-    : { ...data, zIndex: 1, color: GREY, hidden };
+  // When all edges are displayed, show them as LIGHT_GREY.
+  // When only some are visible, show them as GREY.
+  return {
+    ...data,
+    color: state.selectedNode || state.hoveredNode ? GREY : LIGHT_GREY,
+    hidden,
+  };
 }
 
 /**
