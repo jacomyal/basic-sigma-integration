@@ -91,9 +91,7 @@ function searchNodes(query) {
 
   const options = state.suggestions.map(
     ({ node, label }) =>
-      `<option tabindex="1" data-nodeid="${encodeURIComponent(
-        node
-      )}">${label}</option>`
+      `<option tabindex="1" data-nodeid="${escape(node)}">${label}</option>`
   );
 
   if (results.length > STOP_COUNTING_AT) {
@@ -485,7 +483,7 @@ export default function init(inputConfig, inputGraph, domRoot) {
     }
   });
   dom.datalist.addEventListener("click", (e) => {
-    const nodeId = e.target.getAttribute("data-nodeid");
+    const nodeId = unescape(e.target.getAttribute("data-nodeid"));
     if (nodeId) {
       focusNode(nodeId);
       e.target.blur();
