@@ -5,24 +5,24 @@
   "main": "src/index.js",
   "author": "OuestWare",
   "scripts": {
-    "start": "kotatsu serve src/index.js --index index.html --public data",
+    "start": "kotatsu serve src/index.js --index index.html --public / data",
     "clean": "rm -Rf build",
     "prod": "kotatsu build client src/index.js --production true",
     "build": "npm run clean && npm run prod",
     "prettier": "prettier --write \"**\""
   },
   "devDependencies": {
-    "kotatsu": "^0.18.0",
-    "prettier": "^2.0.2"
+    "kotatsu": "^0.20.0",
+    "prettier": "^2.1.2"
   },
   "dependencies": {
-    "graphology": "^0.16.0",
+    "graphology": "^0.17.1",
     "graphology-gexf": "^0.5.1",
     "graphology-graphml": "^0.2.0",
-    "graphology-metrics": "^1.8.0",
-    "graphology-operators": "^1.0.0",
+    "graphology-metrics": "^1.13.0",
+    "graphology-operators": "^1.1.0",
     "iwanthue": "^1.4.0",
-    "lodash": "^4.17.15",
-    "sigma": "^2.0.0-alpha29"
+    "lodash": "^4.17.20",
+    "sigma": "^2.0.0-alpha40"
   }
 }
