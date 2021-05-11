@@ -22,7 +22,7 @@
     "graphology-metrics": "^1.13.0",
     "graphology-operators": "^1.1.0",
     "iwanthue": "^1.4.0",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "sigma": "^2.0.0-alpha40"
   }
 }
