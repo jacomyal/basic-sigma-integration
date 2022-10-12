@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "graphology": "^0.17.1",
-    "graphology-gexf": "^0.5.1",
-    "graphology-graphml": "^0.2.0",
+    "graphology-gexf": "^0.10.2",
+    "graphology-graphml": "^0.5.1",
     "graphology-metrics": "^1.13.0",
     "graphology-operators": "^1.1.0",
     "iwanthue": "^1.4.0",
